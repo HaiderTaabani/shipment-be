@@ -1,0 +1,15 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: shipment-postgres
+    environment:
+      POSTGRES_DB: shipmentdb
+      POSTGRES_USER: shipment
+      POSTGRES_PASSWORD: shipment
+    ports:
+      - "5433:5432"
+    volumes:
+      - shipment-pgdata:/var/lib/postgresql/data
+
+volumes:
+  shipment-pgdata:
