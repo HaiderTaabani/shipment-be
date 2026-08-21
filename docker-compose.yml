@@ -10,6 +10,35 @@ services:
       - "5433:5432"
     volumes:
       - shipment-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U shipment -d shipmentdb"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build: .
+    image: shipment-be
+    container_name: shipment-backend
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/shipmentdb
+      SPRING_DATASOURCE_USERNAME: shipment
+      SPRING_DATASOURCE_PASSWORD: shipment
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: ../shipment-fe
+    image: shipment-fe
+    container_name: shipment-frontend
+    ports:
+      - "4200:80"
+    depends_on:
+      - backend
 
 volumes:
   shipment-pgdata:
