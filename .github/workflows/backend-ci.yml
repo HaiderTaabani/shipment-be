@@ -1,0 +1,55 @@
+name: Backend CI
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  test-and-build:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: shipmentdb
+          POSTGRES_USER: shipment
+          POSTGRES_PASSWORD: shipment
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U shipment -d shipmentdb"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/shipmentdb
+      SPRING_DATASOURCE_USERNAME: shipment
+      SPRING_DATASOURCE_PASSWORD: shipment
+
+    steps:
+      - name: Retrieve repository code
+        uses: actions/checkout@v7
+
+      - name: Set up Java
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+
+      - name: Allow Maven Wrapper execution
+        run: chmod +x mvnw
+
+      - name: Run backend tests
+        run: ./mvnw -B test
+
+      - name: Build Spring Boot application
+        run: ./mvnw -B package -DskipTests
