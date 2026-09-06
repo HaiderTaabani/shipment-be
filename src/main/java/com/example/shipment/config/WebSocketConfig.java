@@ -10,6 +10,11 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 @EnableWebSocketMessageBroker
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
+  private static final String[] ALLOWED_ORIGINS = {
+      "http://localhost:4200",
+      "https://shipment-feh.onrender.com"
+  };
+
   @Override
   public void configureMessageBroker(MessageBrokerRegistry config) {
     config.enableSimpleBroker("/topic", "/queue");
@@ -20,8 +25,8 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
   @Override
   public void registerStompEndpoints(StompEndpointRegistry registry) {
     registry.addEndpoint("/ws")
-        .setAllowedOriginPatterns("http://localhost:4200/").withSockJS();
+        .setAllowedOriginPatterns(ALLOWED_ORIGINS).withSockJS();
 
-    registry.addEndpoint("/ws").setAllowedOriginPatterns("http://localhost:4200/");
+    registry.addEndpoint("/ws").setAllowedOriginPatterns(ALLOWED_ORIGINS);
   }
 }
